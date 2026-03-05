@@ -10,7 +10,45 @@ from sklearn.metrics import accuracy_score
 
 st.set_page_config(page_title="AI Manufacturing Dashboard", layout="wide")
 
-st.title("🏭 AI Based Manufacturing Efficiency Dashboard")
+# ------------------ STYLE ------------------
+
+st.markdown("""
+<style>
+
+body {
+background-color:#0f172a;
+}
+
+.main-title {
+font-size:40px;
+font-weight:bold;
+color:#38bdf8;
+text-align:center;
+}
+
+.kpi-card {
+background: linear-gradient(135deg,#1e293b,#0ea5e9);
+padding:20px;
+border-radius:15px;
+text-align:center;
+color:white;
+font-size:18px;
+box-shadow:0px 4px 12px rgba(0,0,0,0.3);
+}
+
+.section-title {
+color:#22c55e;
+font-size:24px;
+font-weight:bold;
+margin-top:20px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ------------------ TITLE ------------------
+
+st.markdown('<p class="main-title">🏭 AI Smart Manufacturing Efficiency Dashboard</p>', unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader("Upload Dataset", type=["csv"])
 
@@ -22,29 +60,51 @@ if uploaded_file is not None:
     df.columns = df.columns.str.strip()
     df.columns = df.columns.str.replace(" ", "_")
 
-    st.subheader("Dataset Preview")
+    # ---------------- DATA PREVIEW ----------------
+
+    st.markdown('<p class="section-title">Dataset Preview</p>', unsafe_allow_html=True)
     st.dataframe(df.head())
 
-    st.subheader("Dataset Summary")
+    st.markdown('<p class="section-title">Dataset Summary</p>', unsafe_allow_html=True)
     st.write(df.describe())
 
     # ---------------- KPI SECTION ----------------
 
-    st.subheader("Key Performance Indicators")
+    st.markdown('<p class="section-title">Key Performance Indicators</p>', unsafe_allow_html=True)
 
     col1,col2,col3,col4 = st.columns(4)
 
-    if "Machine_ID" in df.columns:
-        col1.metric("Total Machines", df["Machine_ID"].nunique())
+    with col1:
+        st.markdown(f"""
+        <div class="kpi-card">
+        Total Machines
+        <h2>{df["Machine_ID"].nunique()}</h2>
+        </div>
+        """,unsafe_allow_html=True)
 
-    if "Temperature_C" in df.columns:
-        col2.metric("Avg Temperature", round(df["Temperature_C"].mean(),2))
+    with col2:
+        st.markdown(f"""
+        <div class="kpi-card">
+        Avg Temperature
+        <h2>{round(df["Temperature_C"].mean(),2)}</h2>
+        </div>
+        """,unsafe_allow_html=True)
 
-    if "Vibration_Hz" in df.columns:
-        col3.metric("Avg Vibration", round(df["Vibration_Hz"].mean(),2))
+    with col3:
+        st.markdown(f"""
+        <div class="kpi-card">
+        Avg Vibration
+        <h2>{round(df["Vibration_Hz"].mean(),2)}</h2>
+        </div>
+        """,unsafe_allow_html=True)
 
-    if "Error_Rate_%" in df.columns:
-        col4.metric("Avg Error Rate", round(df["Error_Rate_%"].mean(),2))
+    with col4:
+        st.markdown(f"""
+        <div class="kpi-card">
+        Avg Error Rate
+        <h2>{round(df["Error_Rate_%"].mean(),2)}</h2>
+        </div>
+        """,unsafe_allow_html=True)
 
     # ---------------- EFFICIENCY DISTRIBUTION ----------------
 
@@ -52,9 +112,15 @@ if uploaded_file is not None:
 
     if eff_col:
 
-        st.subheader("Efficiency Distribution")
+        st.markdown('<p class="section-title">Efficiency Distribution</p>', unsafe_allow_html=True)
 
-        fig = px.histogram(df,x=eff_col[0],color=eff_col[0])
+        fig = px.histogram(
+            df,
+            x=eff_col[0],
+            color=eff_col[0],
+            color_discrete_sequence=["#06b6d4","#22c55e","#f59e0b"]
+        )
+
         st.plotly_chart(fig,use_container_width=True)
 
     # ---------------- PRODUCTION TREND ----------------
@@ -63,44 +129,64 @@ if uploaded_file is not None:
 
     if prod_col:
 
-        st.subheader("Production Trend")
+        st.markdown('<p class="section-title">Production Trend</p>', unsafe_allow_html=True)
 
-        fig = px.line(df,y=prod_col[0])
+        fig = px.line(
+            df,
+            y=prod_col[0],
+            color_discrete_sequence=["#38bdf8"]
+        )
+
         st.plotly_chart(fig,use_container_width=True)
 
     # ---------------- TEMPERATURE ----------------
 
     if "Temperature_C" in df.columns:
 
-        st.subheader("Temperature Distribution")
+        st.markdown('<p class="section-title">Temperature Distribution</p>', unsafe_allow_html=True)
 
-        fig = px.histogram(df,x="Temperature_C")
+        fig = px.histogram(
+            df,
+            x="Temperature_C",
+            color_discrete_sequence=["#f97316"]
+        )
+
         st.plotly_chart(fig,use_container_width=True)
 
     # ---------------- VIBRATION ----------------
 
     if "Vibration_Hz" in df.columns:
 
-        st.subheader("Vibration Distribution")
+        st.markdown('<p class="section-title">Vibration Distribution</p>', unsafe_allow_html=True)
 
-        fig = px.histogram(df,x="Vibration_Hz")
+        fig = px.histogram(
+            df,
+            x="Vibration_Hz",
+            color_discrete_sequence=["#22c55e"]
+        )
+
         st.plotly_chart(fig,use_container_width=True)
 
     # ---------------- MACHINE PRODUCTION ----------------
 
     if "Machine_ID" in df.columns and prod_col:
 
-        st.subheader("Machine Wise Production")
+        st.markdown('<p class="section-title">Machine Wise Production</p>', unsafe_allow_html=True)
 
         machine_prod = df.groupby("Machine_ID")[prod_col[0]].mean().reset_index()
 
-        fig = px.bar(machine_prod,x="Machine_ID",y=prod_col[0])
+        fig = px.bar(
+            machine_prod,
+            x="Machine_ID",
+            y=prod_col[0],
+            color_discrete_sequence=["#6366f1"]
+        )
 
         st.plotly_chart(fig,use_container_width=True)
 
     # ---------------- HEATMAP ----------------
 
-    st.subheader("Feature Correlation Heatmap")
+    st.markdown('<p class="section-title">Feature Correlation Heatmap</p>', unsafe_allow_html=True)
 
     numeric_df = df.select_dtypes(include=["float64","int64"])
 
@@ -116,7 +202,7 @@ if uploaded_file is not None:
 
     if eff_col:
 
-        st.subheader("AI Efficiency Prediction Model")
+        st.markdown('<p class="section-title">AI Efficiency Prediction Model</p>', unsafe_allow_html=True)
 
         df = df.dropna()
 
@@ -141,9 +227,15 @@ if uploaded_file is not None:
             "Importance":model.feature_importances_
         }).sort_values(by="Importance",ascending=False)
 
-        st.subheader("Feature Importance")
+        st.markdown('<p class="section-title">Feature Importance</p>', unsafe_allow_html=True)
 
-        fig = px.bar(importance,x="Importance",y="Feature",orientation="h")
+        fig = px.bar(
+            importance,
+            x="Importance",
+            y="Feature",
+            orientation="h",
+            color_discrete_sequence=["#0ea5e9"]
+        )
 
         st.plotly_chart(fig,use_container_width=True)
 
